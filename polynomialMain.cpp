@@ -19,7 +19,7 @@ int main() {
   ys.changeCoefficient(4,5);
   ys.changeCoefficient(-3,7);
   
-  Polynomial<int> zs = addPolys(xs,ys);
+  Polynomial<int> zs = xs.addPolys(ys);
   
   zs.printPoly();
   

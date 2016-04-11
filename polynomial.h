@@ -9,7 +9,6 @@ class Node {
   T coeff;
   Node* next;
   template <class A> friend class Polynomial;
-  template <typename B> friend Polynomial<B> addPolys(Polynomial<B> & xs, Polynomial<B> & ys);
 };
 
 template <class A>
@@ -32,10 +31,11 @@ public:
   // print the poly
   void printPoly();
   
-  template <typename B> friend Polynomial<B> addPolys(Polynomial<B> & xs, Polynomial<B> & ys);
+  Polynomial<A> addPolys(Polynomial<A> & ys);
 
 private:
   Node<A>* getHead();
+  void remove(Node<A>* target);
   
 protected:
   Node<A>* head;
@@ -73,10 +73,30 @@ void Polynomial<A>::changeCoefficient(A coeff, int degree) {
 }
 
 
+// private function templates
 template <typename A>
 Node<A>* Polynomial<A>::getHead() {
   return head;
 } 
+
+
+// private members
+// produces segfault
+/*
+template <typename A>
+void Polynomial<A>::remove(Node<A>* target) {
+  Node<A>* trav = head;
+  if (trav == target) {
+    head = trav->next;
+    delete trav;
+  }
+  while (trav->next != target) {
+    trav = trav->next;
+  }
+  trav->next = target->next;
+  delete target;
+}
+*/
 
 template <typename A>
 void Polynomial<A>::printPoly() {
@@ -90,20 +110,29 @@ void Polynomial<A>::printPoly() {
   }
 }
 
-template <typename B> 
-Polynomial<B> addPolys(Polynomial<B> & xs, Polynomial<B> & ys) {
-    Polynomial<B> zs;
+template <typename A> 
+Polynomial<A> Polynomial<A>::addPolys(Polynomial<A> & ys) {
+    
+  Polynomial<A> zs;
   
-    for (Node<B>* trav1 = xs.getHead() ; trav1 != NULL; trav1 = trav1->next) {
-      for (Node<B>* trav2 = ys.getHead(); trav2 != NULL; trav2 = trav2->next) {
+    for (Node<A>* trav1 = this->getHead() ; trav1 != NULL; trav1 = trav1->next) {
+      for (Node<A>* trav2 = ys.getHead(); trav2 != NULL; trav2 = trav2->next) {
 	if (trav1->pwr == trav2->pwr) {
 	  zs.changeCoefficient((trav1->coeff)+(trav2->coeff),trav1->pwr);
+	  // this->remove(trav1);
+	  // ys.remove(trav2);
 	}
       }
     }
-
-    // combine the two lists, filter for unique occurences of a power and add to zs
-
+    
+    /*
+    Node<A>* trav = zs.getHead();
+    while(trav->next != NULL) trav = trav->next;
+    trav->next = this->getHead();
+    while(trav->next != NULL) trav = trav->next;
+    trav->next = ys.getHead();
+    */
+    
     return zs;
 }
 
