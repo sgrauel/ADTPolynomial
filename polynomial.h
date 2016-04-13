@@ -11,6 +11,17 @@ class Node {
   template <class A> friend class Polynomial;
 };
 
+
+/*
+Generic Programming in this Program:
+------------------------------------------------------------
+the concept of numeric types models the type parameter A
+i.e. the requirements normally associated with numeric
+types like float, double, int and others describe the
+concept that models A. So it is with T, though A is
+created not to overshadow T in the class template Node above.
+*/
+
 template <class A>
 class Polynomial {
 public:
@@ -28,14 +39,21 @@ public:
   // prefix a term with the specified coefficient and degree to the poly
   void changeCoefficient(A coeff, int degree);
 
+  // count the number of terms
+  int countTerms() const;
+  
   // print the poly
   void printPoly();
   
-  Polynomial<A> addPolys(Polynomial<A> & ys);
+  Polynomial<A>* addPolys(Polynomial<A> & ys) const;
 
 private:
-  Node<A>* getHead();
-  void remove(Node<A>* target);
+  Node<A>* getHead() const;
+  Node<A>* getTail() const;
+  
+  // combine two polys without adding,
+  // followed by the terms of the second
+  void combinePolys(Polynomial<A> & xs, Polynomial<A> & ys) const;
   
 protected:
   Node<A>* head;
@@ -72,67 +90,108 @@ void Polynomial<A>::changeCoefficient(A coeff, int degree) {
   }
 }
 
-
-// private function templates
 template <typename A>
-Node<A>* Polynomial<A>::getHead() {
-  return head;
-} 
-
-
-// private members
-// produces segfault
-/*
-template <typename A>
-void Polynomial<A>::remove(Node<A>* target) {
+int Polynomial<A>::countTerms() const {
   Node<A>* trav = head;
-  if (trav == target) {
-    head = trav->next;
-    delete trav;
-  }
-  while (trav->next != target) {
+  int numTerms = 0;
+  while (trav != NULL) {
+    numTerms++;
     trav = trav->next;
   }
-  trav->next = target->next;
-  delete target;
+  return numTerms;
 }
-*/
 
 template <typename A>
 void Polynomial<A>::printPoly() {
   Node<A>* trav = head;
   while(trav != NULL) {
-    std::cout << trav->coeff;
-    std::cout << "x^";
-    std::cout << trav->pwr;
-    if (trav->next != NULL) std::cout << " + ";
+    cout << trav->coeff;
+    cout << "x^";
+    cout << trav->pwr;
+    if (trav->next != NULL) cout << " + ";
     trav = trav->next;
   }
 }
 
+/*
+runtime (theory of algos):
+2n^2 e O(n^2)
+considering changeCoefficent as the only important primitive operation
+where changeCoefficient is constant-time; O(1); insertion at the front
+of the list.
+*/
+
 template <typename A> 
-Polynomial<A> Polynomial<A>::addPolys(Polynomial<A> & ys) {
+Polynomial<A>* Polynomial<A>::addPolys(Polynomial<A> & ys) const {
     
-  Polynomial<A> zs;
+  if (this->countTerms() == 0 || ys.countTerms() == 0) {
+    throw NonExistence("Cannot add one or more non-existent polynomials.");
+    exit(EXIT_FAILURE);
+  }
+
+  Polynomial<A> & likeTerms = (*(new Polynomial<A>));
+  Polynomial<A> & unlikeTerms = (*(new Polynomial<A>));
+
+  int countSatisfy = 0;
   
-    for (Node<A>* trav1 = this->getHead() ; trav1 != NULL; trav1 = trav1->next) {
+    for (Node<A>* trav1 = this->getHead(); trav1 != NULL; trav1 = trav1->next) {
       for (Node<A>* trav2 = ys.getHead(); trav2 != NULL; trav2 = trav2->next) {
 	if (trav1->pwr == trav2->pwr) {
-	  zs.changeCoefficient((trav1->coeff)+(trav2->coeff),trav1->pwr);
-	  // this->remove(trav1);
-	  // ys.remove(trav2);
+	  likeTerms.changeCoefficient((trav1->coeff)+(trav2->coeff),trav1->pwr);
+	  countSatisfy++;
 	}
       }
+      if (countSatisfy == 0) {
+	unlikeTerms.changeCoefficient(trav1->coeff,trav1->pwr); 
+      }
+      countSatisfy = 0;
     }
     
-    /*
-    Node<A>* trav = zs.getHead();
-    while(trav->next != NULL) trav = trav->next;
-    trav->next = this->getHead();
-    while(trav->next != NULL) trav = trav->next;
-    trav->next = ys.getHead();
-    */
+    countSatisfy = 0;
+
+    for (Node<A>* trav1 = ys.getHead(); trav1 != NULL; trav1 = trav1->next) {
+      for (Node<A>* trav2 = this->getHead(); trav2 != NULL; trav2 = trav2->next) {
+	if (trav1->pwr == trav2->pwr) {
+	  countSatisfy++;
+	}
+      }
+      if (countSatisfy == 0) {
+	unlikeTerms.changeCoefficient(trav1->coeff,trav1->pwr); 
+      }
+      countSatisfy = 0;
+    }
     
-    return zs;
+    combinePolys(likeTerms,unlikeTerms);
+    
+    return &likeTerms;
+}
+
+// private function templates
+template <typename A>
+Node<A>* Polynomial<A>::getHead() const {
+  return head;
+} 
+
+template <typename A>
+Node<A>* Polynomial<A>::getTail() const {
+  // given a list of size >= 1
+  if (countTerms() > 1) {
+    Node<A>* trav1 = head;
+    Node<A>* trav2 = head->next;
+    while(trav2 != NULL) {
+      trav1 = trav1->next;
+      trav2 = trav2->next;
+    }
+    return trav1;
+  } else {
+    throw InvalidAccess("Cannot get the last term for a polynomial with no terms");
+    exit(EXIT_FAILURE);
+  }
+}
+
+template <typename A>
+void Polynomial<A>::combinePolys(Polynomial<A> & xs, Polynomial<A> & ys) const {
+  Node<A>* tailXS = xs.getTail();
+  tailXS->next = ys.getHead();
 }
 

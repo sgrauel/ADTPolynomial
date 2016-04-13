@@ -2,26 +2,33 @@
 
 int main() {
   
+  /*
+     PROBLEM: (20x^2 + 2) + (x^3 + 15x^2 - 8) + (50x^10 3x^2 - 4)
+  */
+  
   Polynomial<int> xs;
 
-  // xs.changeCoefficient(0,0);
-  xs.changeCoefficient(9,0);
-  xs.changeCoefficient(-1,2);
-  xs.changeCoefficient(7,3);
-  xs.changeCoefficient(4,5);
-  xs.changeCoefficient(-3,7);
-
+  xs.changeCoefficient(20,2);
+  xs.changeCoefficient(2,0);
+  
   Polynomial<int> ys;
   
-  ys.changeCoefficient(9,0);
-  ys.changeCoefficient(-1,2);
-  ys.changeCoefficient(7,3);
-  ys.changeCoefficient(4,5);
-  ys.changeCoefficient(-3,7);
+  ys.changeCoefficient(1,3);
+  ys.changeCoefficient(15,2);
+  ys.changeCoefficient(-8,0);
+
+  Polynomial<int> ws;
   
-  Polynomial<int> zs = xs.addPolys(ys);
+  ws.changeCoefficient(50,10);
+  ws.changeCoefficient(3,2);
+  ws.changeCoefficient(-4,0); 
+ 
+  Polynomial<int>* zs = xs.addPolys(ys);
+  Polynomial<int>* sum = zs->addPolys(ws);
+
+  sum->printPoly();
   
-  zs.printPoly();
+  delete sum;
   
   return 0;
 }
