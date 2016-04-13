@@ -1,3 +1,23 @@
+/* 
+On my honor,
+
+The following program is a result of personal effort. I have not discussed with
+anyone other than my instructor or any appropriate person in charge of the class.
+I have not used, or slightly modified code or portion of code from another
+student, or an unauthorized source.
+
+If any C++ language code or documentation used in my program was obtained from
+another source, such as a textbook or course notes, that has been clearly noted
+with a proper citation in the comments of my program.
+
+I have not designed this program in such a way as to defeat or interfere with the
+normal operation of the eniac system or cslab machines at Hunter College.
+
+Sincerely,
+
+- Shawn M. Grauel
+*/
+
 #include <cstdlib>
 #include <iostream>
 #include "polynomialExceptions.h"
